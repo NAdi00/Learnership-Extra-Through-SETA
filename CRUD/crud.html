@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Linking You | CRUD</title>
+
+    <link rel="stylesheet" href="crud.css">
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+    <nav class="navbar">
+
+        <div class="logo">
+            Linking You
+        </div>
+
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="login.html">Login</a>
+            <a href="signup.html">Sign Up</a>
+        </div>
+
+    </nav>
+
+
+    <!-- PAGE -->
+    <main class="container">
+
+        <div class="page-header">
+
+            <h1>CRUD User Management</h1>
+
+            <p>
+                Create, read, update and delete users
+            </p>
+
+        </div>
+
+
+        <!-- CRUD MENU -->
+
+        <section class="crud-menu">
+
+            <button
+                class="crud-item create"
+                onclick="showCreateForm()">
+
+                <div class="crud-icon">
+                    ✎
+                </div>
+
+                <h2>Create</h2>
+
+                <p>Add a new user</p>
+
+            </button>
+
+
+            <button
+                class="crud-item read"
+                onclick="showUsers()">
+
+                <div class="crud-icon">
+                    ☰
+                </div>
+
+                <h2>Read</h2>
+
+                <p>View users</p>
+
+            </button>
+
+
+            <button
+                class="crud-item update"
+                onclick="showUpdateForm()">
+
+                <div class="crud-icon">
+                    ↻
+                </div>
+
+                <h2>Update</h2>
+
+                <p>Edit users</p>
+
+            </button>
+
+
+            <button
+                class="crud-item delete"
+                onclick="showDeleteForm()">
+
+                <div class="crud-icon">
+                    ×
+                </div>
+
+                <h2>Delete</h2>
+
+                <p>Remove users</p>
+
+            </button>
+
+        </section>
+
+
+        <!-- CRUD LETTERS -->
+
+        <div class="crud-title">
+
+            <span>C</span>
+            <span>R</span>
+            <span>U</span>
+            <span>D</span>
+
+        </div>
+
+
+        <!-- CONTENT AREA -->
+
+        <section class="content-area">
+
+            <!-- CREATE -->
+
+            <div
+                id="createSection"
+                class="crud-section">
+
+                <h2>Create User</h2>
+
+                <form id="createForm">
+
+                    <div class="form-group">
+
+                        <label>Full Name</label>
+
+                        <input
+                            type="text"
+                            id="createName"
+                            placeholder="Enter full name"
+                            required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Email</label>
+
+                        <input
+                            type="email"
+                            id="createEmail"
+                            placeholder="Enter email"
+                            required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Account Type</label>
+
+                        <select id="createType" required>
+
+                            <option value="">
+                                Select account type
+                            </option>
+
+                            <option value="Job Seeker">
+                                Job Seeker
+                            </option>
+
+                            <option value="Company">
+                                Company
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="primary-button">
+
+                        Create User
+
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- READ -->
+
+            <div
+                id="readSection"
+                class="crud-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <h2>Users</h2>
+
+                        <p>
+                            Registered users
+                        </p>
+                    </div>
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search users..."
+                        onkeyup="searchUsers()">
+
+                </div>
+
+
+                <div
+                    id="usersContainer"
+                    class="users-container">
+                </div>
+
+            </div>
+
+
+            <!-- UPDATE -->
+
+            <div
+                id="updateSection"
+                class="crud-section">
+
+                <h2>Update User</h2>
+
+                <p class="instruction">
+                    Select a user from the table below to edit their information.
+                </p>
+
+                <div
+                    id="updateList"
+                    class="update-list">
+                </div>
+
+            </div>
+
+
+            <!-- DELETE -->
+
+            <div
+                id="deleteSection"
+                class="crud-section">
+
+                <h2>Delete User</h2>
+
+                <p class="instruction">
+                    Select a user you want to remove.
+                </p>
+
+                <div
+                    id="deleteList"
+                    class="delete-list">
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- UPDATE MODAL -->
+
+    <div
+        id="updateModal"
+        class="modal">
+
+        <div class="modal-box">
+
+            <button
+                class="close-button"
+                onclick="closeUpdateModal()">
+                ×
+            </button>
+
+            <h2>Edit User</h2>
+
+            <form id="updateForm">
+
+                <input
+                    type="hidden"
+                    id="updateId">
+
+                <div class="form-group">
+
+                    <label>Full Name</label>
+
+                    <input
+                        type="text"
+                        id="updateName"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Email</label>
+
+                    <input
+                        type="email"
+                        id="updateEmail"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Account Type</label>
+
+                    <select id="updateType">
+
+                        <option value="Job Seeker">
+                            Job Seeker
+                        </option>
+
+                        <option value="Company">
+                            Company
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="primary-button">
+
+                    Save Changes
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <footer>
+
+        <p>
+            © 2026 Linking You. All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+    <script src="crud.js"></script>
+
+</body>
+
+</html>
