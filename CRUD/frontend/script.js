@@ -274,7 +274,7 @@ if (loginForm) {
             setTimeout(() => {
 
                 window.location.href =
-                    "chat.html";
+                    "crud.html";
 
             }, 1000);
 
