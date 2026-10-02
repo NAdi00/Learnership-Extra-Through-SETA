@@ -2,48 +2,7 @@
    DEFAULT USERS
 ========================= */
 
-let users =
-    JSON.parse(
-        localStorage.getItem("crudUsers")
-    ) || [
-
-        {
-            id: 1,
-            name: "John Smith",
-            email: "john@example.com",
-            type: "Job Seeker"
-        },
-
-        {
-            id: 2,
-            name: "Sarah Johnson",
-            email: "sarah@example.com",
-            type: "Job Seeker"
-        },
-
-        {
-            id: 3,
-            name: "ABC Technologies",
-            email: "info@abc.co.za",
-            type: "Company"
-        }
-
-    ];
-
-
-/* =========================
-   SAVE USERS
-========================= */
-
-function saveUsers() {
-
-    localStorage.setItem(
-        "crudUsers",
-        JSON.stringify(users)
-    );
-
-}
-
+let users = []
 
 /* =========================
    INITIAL LOAD
@@ -69,7 +28,7 @@ document
     .getElementById("createForm")
     .addEventListener(
         "submit",
-        function(event) {
+        async function(event) {
 
             event.preventDefault();
 
@@ -85,12 +44,17 @@ document
                     .getElementById("createEmail")
                     .value
                     .trim();
+            
+             const occupation =
+                document
+                    .getElementById("createOccupation")
+                    .value
+                    .trim();
 
             const type =
                 document
                     .getElementById("createType")
                     .value;
-
 
             const newUser = {
 
@@ -100,33 +64,52 @@ document
 
                 email: email,
 
+                occupation: occupation,
+
                 type: type
 
             };
 
+ try {
+
+        const response = await fetch("http://localhost:5000/jobs", {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(newUser)
+        });
+
+        const data = await response.json();
+
+        newUser._id = data._id;
+
+    } catch (error) {
+
+        console.error("Error:", error);
+
+    }
 
             users.push(newUser);
 
-            saveUsers();
-
             loadUsers();
-
 
             document
                 .getElementById("createForm")
                 .reset();
 
-
             alert(
                 "User created successfully!"
             );
 
+            await createUser();
 
             showUsers();
 
         }
     );
-
 
 /* =========================
    READ
@@ -141,7 +124,6 @@ function loadUsers() {
 
 
     container.innerHTML = "";
-
 
     if (users.length === 0) {
 
@@ -177,6 +159,9 @@ function loadUsers() {
                 <p>
                     ${escapeHTML(user.email)}
                 </p>
+                <p>
+                    ${escapeHTML(user.occupation)}
+                </p>
 
             </div>
 
@@ -197,7 +182,6 @@ function loadUsers() {
     loadDeleteUsers();
 
 }
-
 
 /* =========================
    UPDATE LIST
@@ -239,6 +223,10 @@ function loadUpdateUsers() {
                     ${escapeHTML(user.email)}
                 </p>
 
+                 <p>
+                    ${escapeHTML(user.occupation)}
+                </p>
+
             </div>
 
             <button
@@ -258,7 +246,6 @@ function loadUpdateUsers() {
 
 }
 
-
 /* =========================
    OPEN UPDATE MODAL
 ========================= */
@@ -270,7 +257,7 @@ function openUpdateModal(id) {
             user => user.id === id
         );
 
-
+    console.log("Opening update modal for user:", id);
     if (!user) return;
 
 
@@ -288,6 +275,9 @@ function openUpdateModal(id) {
         .getElementById("updateEmail")
         .value = user.email;
 
+    document
+        .getElementById("updateOccupation")
+        .value = user.occupation;
 
     document
         .getElementById("updateType")
@@ -300,7 +290,6 @@ function openUpdateModal(id) {
 
 }
 
-
 /* =========================
    UPDATE USER
 ========================= */
@@ -309,18 +298,13 @@ document
     .getElementById("updateForm")
     .addEventListener(
         "submit",
-        function(event) {
+       async function(event) {
 
             event.preventDefault();
 
+            console.log(this._id);
 
-            const id =
-                Number(
-                    document
-                        .getElementById("updateId")
-                        .value
-                );
-
+            const id = this._id
 
             const user =
                 users.find(
@@ -344,15 +328,50 @@ document
                     .value
                     .trim();
 
+            user.occupation =
+                document
+                    .getElementById("updateOccupation")
+                    .value
+                    .trim();
+
 
             user.type =
                 document
                     .getElementById("updateType")
                     .value;
 
+            const newData = {
+                name: user.name,
+                email: user.email,
+                occupation: user.occupation,
+                userType: user.type
+            };
 
-            saveUsers();
+             try {
 
+        const response = await fetch(`http://localhost:5000/jobs/${id}`, {
+            method: "PUT",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(newData)
+        });
+
+        const data11 = await response.json();
+
+        if (response.ok) {
+            console.log("User updated successfully:", user);
+        } else {
+            console.error("Update failed:", user);
+        }
+
+    } catch (error) {
+
+        console.error("Request failed:", error);
+
+    }
             loadUsers();
 
             closeUpdateModal();
@@ -365,7 +384,6 @@ document
         }
     );
 
-
 /* =========================
    CLOSE MODAL
 ========================= */
@@ -377,7 +395,6 @@ function closeUpdateModal() {
         .classList.remove("active");
 
 }
-
 
 /* =========================
    DELETE LIST
@@ -417,6 +434,9 @@ function loadDeleteUsers() {
 
                 <p>
                     ${escapeHTML(user.email)}
+                </p>
+                <p>
+                    ${escapeHTML(user.occupation)}
                 </p>
 
             </div>
@@ -467,9 +487,6 @@ function deleteUser(id) {
         users.filter(
             user => user.id !== id
         );
-
-
-    saveUsers();
 
     loadUsers();
 
@@ -660,3 +677,37 @@ function escapeHTML(text) {
     return div.innerHTML;
 
 }
+
+const jobForm = document.getElementById("updateForm");
+
+async function createUser() {
+
+    // const jobData = {
+    //     name: document.getElementById("createName").value,
+    //     email: document.getElementById("createEmail").value,
+    //     occupation: document.getElementById("createOccupation").value,
+    //     userType: document.getElementById("createType").value
+    // };
+
+    // try {
+
+    //     const response = await fetch("http://localhost:5000/jobs", {
+    //         method: "POST",
+
+    //         headers: {
+    //             "Content-Type": "application/json"
+    //         },
+
+    //         body: JSON.stringify(jobData)
+    //     });
+
+    //     const data = await response.json();
+
+    //     console.log(data);
+
+    // } catch (error) {
+
+    //     console.error("Error:", error);
+
+    // }
+};

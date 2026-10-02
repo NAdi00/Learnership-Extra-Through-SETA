@@ -20,22 +20,22 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Job Schema
 const jobSchema = new mongoose.Schema({
-    title: {
+    name: {
         type: String,
         required: true
     },
 
-    company: {
+    email: {
         type: String,
         required: true
     },
 
-    location: {
+    occupation: {
         type: String,
         required: true
     },
 
-    salary: {
+    userType: {
         type: String
     }
 });
