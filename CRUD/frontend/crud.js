@@ -82,17 +82,13 @@ document
             body: JSON.stringify(newUser)
         });
 
-        const data = await response.json();
-
-        newUser._id = data._id;
-
-    } catch (error) {
-
-        console.error("Error:", error);
-
-    }
-
+        const data = await response.json()
+        .then(data => {
+            newUser.id = data._id; // Update the id with the one returned from the backend
             users.push(newUser);
+            console.log(users)
+
+        }).then(async () => {
 
             loadUsers();
 
@@ -101,13 +97,21 @@ document
                 .reset();
 
             alert(
-                "User created successfully!"
-            );
+                        "User created successfully!"
+                    );
 
             await createUser();
 
             showUsers();
+        })
 
+        //console.log(data._id + " created successfully:");
+
+    } catch (error) {
+
+        console.error("Error:", error);
+
+    }
         }
     );
 
@@ -143,6 +147,7 @@ function loadUsers() {
         card.className =
             "user-card";
 
+        card.id = user.id;
 
         card.innerHTML = `
 
@@ -231,7 +236,7 @@ function loadUpdateUsers() {
 
             <button
                 class="edit-button"
-                onclick="openUpdateModal(${user.id})">
+                onclick="openUpdateModal('${user.id}')">
 
                 Edit
 
@@ -288,6 +293,8 @@ function openUpdateModal(id) {
         .getElementById("updateModal")
         .classList.add("active");
 
+    console.log("Update modal opened for user1111:", id);
+
 }
 
 /* =========================
@@ -302,25 +309,18 @@ document
 
             event.preventDefault();
 
-            console.log(this._id);
-
-            const id = this._id
-
             const user =
                 users.find(
-                    user => user.id === id
+                    user => user.id === myId
                 );
 
-
             if (!user) return;
-
 
             user.name =
                 document
                     .getElementById("updateName")
                     .value
                     .trim();
-
 
             user.email =
                 document
@@ -333,7 +333,6 @@ document
                     .getElementById("updateOccupation")
                     .value
                     .trim();
-
 
             user.type =
                 document
@@ -349,7 +348,7 @@ document
 
              try {
 
-        const response = await fetch(`http://localhost:5000/jobs/${id}`, {
+        const response = await fetch(`http://localhost:5000/jobs/${myId}`, {
             method: "PUT",
 
             headers: {
@@ -359,13 +358,11 @@ document
             body: JSON.stringify(newData)
         });
 
-        const data11 = await response.json();
-
-        if (response.ok) {
+        const data11 = await response.json().then (() => {if (response.ok) {
             console.log("User updated successfully:", user);
         } else {
             console.error("Update failed:", user);
-        }
+        }});
 
     } catch (error) {
 
@@ -407,9 +404,7 @@ function loadDeleteUsers() {
             "deleteList"
         );
 
-
     container.innerHTML = "";
-
 
     users.forEach(user => {
 
@@ -451,13 +446,11 @@ function loadDeleteUsers() {
 
         `;
 
-
         container.appendChild(row);
 
     });
 
 }
-
 
 /* =========================
    DELETE USER
@@ -470,15 +463,12 @@ function deleteUser(id) {
             user => user.id === id
         );
 
-
     if (!user) return;
-
 
     const confirmed =
         confirm(
             `Delete ${user.name}?`
         );
-
 
     if (!confirmed) return;
 
@@ -495,7 +485,6 @@ function deleteUser(id) {
     );
 
 }
-
 
 /* =========================
    SEARCH
@@ -514,7 +503,6 @@ function searchUsers() {
         document.querySelectorAll(
             "#usersContainer .user-card"
         );
-
 
     cards.forEach(
         (card, index) => {
@@ -547,7 +535,6 @@ function searchUsers() {
     );
 
 }
-
 
 /* =========================
    SHOW CREATE
@@ -591,7 +578,6 @@ function showUpdateForm() {
 
 }
 
-
 /* =========================
    SHOW DELETE
 ========================= */
@@ -606,7 +592,6 @@ function showDeleteForm() {
 
 }
 
-
 /* =========================
    SECTION DISPLAY
 ========================= */
@@ -618,16 +603,13 @@ function showSection(id) {
             ".crud-section"
         );
 
-
     sections.forEach(
         section => {
 
             section.style.display =
                 "none";
-
         }
     );
-
 
     document
         .getElementById(id)
@@ -655,13 +637,11 @@ function getInitials(name) {
 
     }
 
-
     return name
         .substring(0, 2)
         .toUpperCase();
 
 }
-
 
 /* =========================
    SECURITY
@@ -679,35 +659,3 @@ function escapeHTML(text) {
 }
 
 const jobForm = document.getElementById("updateForm");
-
-async function createUser() {
-
-    // const jobData = {
-    //     name: document.getElementById("createName").value,
-    //     email: document.getElementById("createEmail").value,
-    //     occupation: document.getElementById("createOccupation").value,
-    //     userType: document.getElementById("createType").value
-    // };
-
-    // try {
-
-    //     const response = await fetch("http://localhost:5000/jobs", {
-    //         method: "POST",
-
-    //         headers: {
-    //             "Content-Type": "application/json"
-    //         },
-
-    //         body: JSON.stringify(jobData)
-    //     });
-
-    //     const data = await response.json();
-
-    //     console.log(data);
-
-    // } catch (error) {
-
-    //     console.error("Error:", error);
-
-    // }
-};
