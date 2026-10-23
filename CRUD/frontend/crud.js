@@ -19,7 +19,6 @@ document.addEventListener(
     }
 );
 
-
 /* =========================
    CREATE
 ========================= */
@@ -100,7 +99,7 @@ document
                         "User created successfully!"
                     );
 
-            await createUser();
+           // await createUser();
 
             showUsers();
         })
@@ -303,84 +302,95 @@ function openUpdateModal(id) {
 
 document
     .getElementById("updateForm")
-    .addEventListener(
-        "submit",
-       async function(event) {
+    .addEventListener("submit", async function(event) {
 
-            event.preventDefault();
+        event.preventDefault();
 
-            const user =
-                users.find(
-                    user => user.id === myId
+        const user = users.find(
+            user => user.id === myId
+        );
+
+        if (!user) {
+            alert("User not found!");
+            return;
+        }
+
+        // Collect the updated form values
+        const newData = {
+            name: document
+                .getElementById("updateName")
+                .value
+                .trim(),
+
+            email: document
+                .getElementById("updateEmail")
+                .value
+                .trim(),
+
+            occupation: document
+                .getElementById("updateOccupation")
+                .value
+                .trim(),
+
+            userType: document
+                .getElementById("updateType")
+                .value
+        };
+
+        try {
+
+            const response = await fetch(
+                `http://localhost:5000/jobs/${myId}`,
+                {
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(newData)
+                }
+            );
+
+            // Read the backend response
+            const data = await response.json();
+
+            // Check whether the request succeeded
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Update failed"
                 );
+            }
 
-            if (!user) return;
+            console.log(
+                "User updated successfully:",
+                data
+            );
 
-            user.name =
-                document
-                    .getElementById("updateName")
-                    .value
-                    .trim();
+            // Refresh the displayed records
+            await loadUsers();
 
-            user.email =
-                document
-                    .getElementById("updateEmail")
-                    .value
-                    .trim();
-
-            user.occupation =
-                document
-                    .getElementById("updateOccupation")
-                    .value
-                    .trim();
-
-            user.type =
-                document
-                    .getElementById("updateType")
-                    .value;
-
-            const newData = {
-                name: user.name,
-                email: user.email,
-                occupation: user.occupation,
-                userType: user.type
-            };
-
-             try {
-
-        const response = await fetch(`http://localhost:5000/jobs/${myId}`, {
-            method: "PUT",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify(newData)
-        });
-
-        const data11 = await response.json().then (() => {if (response.ok) {
-            console.log("User updated successfully:", user);
-        } else {
-            console.error("Update failed:", user);
-        }});
-
-    } catch (error) {
-
-        console.error("Request failed:", error);
-
-    }
-            loadUsers();
-
+            // Close the form
             closeUpdateModal();
 
+            // Show success only after the update succeeds
+            alert("User updated successfully!");
+
+        } catch (error) {
+
+            console.error(
+                "Update failed:",
+                error
+            );
 
             alert(
-                "User updated successfully!"
+                "Failed to update user: " +
+                error.message
             );
 
         }
-    );
 
+    });
 /* =========================
    CLOSE MODAL
 ========================= */
@@ -456,7 +466,7 @@ function loadDeleteUsers() {
    DELETE USER
 ========================= */
 
-function deleteUser(id) {
+async function deleteUser(id) {
 
     const user =
         users.find(
@@ -478,12 +488,55 @@ function deleteUser(id) {
             user => user.id !== id
         );
 
-    loadUsers();
-
-    alert(
-        "User deleted successfully!"
+    async function deleteUser(id) {
+    const user = users.find(
+        user => String(user.id) === String(id)
     );
 
+    if (!user) {
+        alert("User not found.");
+        return;
+    }
+
+    const confirmed = confirm(
+        `Delete ${user.name}?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch(
+            `http://localhost:5000/jobs/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Delete failed"
+            );
+        }
+
+        users = users.filter(
+            user => String(user.id) !== String(id)
+        );
+
+        loadUsers();
+
+        alert("User deleted successfully!");
+
+    } catch (error) {
+        console.error(
+            "Error deleting user:",
+            error
+        );
+
+        alert("Failed to delete user.");
+    }
+}
 }
 
 /* =========================
